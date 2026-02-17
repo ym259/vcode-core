@@ -1,70 +1,103 @@
 # /firebase-setup - Firebase プロジェクトセットアップ
 
-Firebase プロジェクトの作成と設定をガイドします。
+Firebase プロジェクトの作成と設定をブラウザ操作でアシストします。
+
+## 重要な原則
+
+- **ユーザーは非エンジニア。** 技術的な説明は最小限に、「次はここをクリックしてください」レベルで案内する。
+- Chrome MCP を使ってブラウザを操作し、Firebase Console の画面を直接開いてナビゲートする。
+- ユーザーがログインや課金設定など**アカウント操作が必要な部分だけ**ユーザーに操作してもらう。
+- それ以外のクリック操作（サービスの有効化、設定値のコピーなど）はエージェントが行う。
 
 ## 手順
 
-ユーザーに以下のステップを一つずつ案内してください。各ステップで確認を取りながら進めます。
+### ステップ 1: Firebase Console を開く
 
-### ステップ 1: Firebase プロジェクト作成
+Chrome MCP でブラウザタブを作成し、Firebase Console を開く：
+- URL: `https://console.firebase.google.com/`
+- ユーザーに伝える：「Firebase Console を開きました。Googleアカウントでログインしてください。ログインが完了したら教えてください。」
+- **ユーザーのログイン完了を待つ。** ログインはユーザー自身が行う（エージェントは認証操作をしない）。
 
-「Firebase Console（https://console.firebase.google.com/）を開いて、新しいプロジェクトを作成してください。」
+### ステップ 2: プロジェクト作成
 
-- プロジェクト名を入力（アプリ名と合わせる）
-- Google Analytics はオフでOK（後から追加できる）
-- 作成完了まで待つ
+ユーザーがログインしたら：
+1. 「プロジェクトを作成」ボタンをクリック
+2. プロジェクト名を入力（`PROJECT.md` のプロジェクト名を使う）
+3. Google Analytics はオフに設定
+4. 作成完了を待つ
 
-### ステップ 2: ウェブアプリの追加
+ユーザーに伝える：「Firebase プロジェクトを作成しています。少し時間がかかります。」
 
-「プロジェクトの設定 → 全般 → マイアプリ → ウェブアプリを追加してください」
+### ステップ 3: Blaze プランへのアップグレード（Storage が必要な場合）
 
-- アプリのニックネームを入力
-- Firebase Hosting は今はチェック不要（Vercelを使うため）
-- 表示される設定値（apiKey, authDomain, etc.）をコピー
+`PROJECT.md` の技術設計で Firebase Storage を使う場合：
 
-### ステップ 3: 環境変数の設定
+1. Firebase Console の左下「Spark」プラン表示をクリック、または課金ページに移動
+2. ユーザーに伝える：
+   「画像のアップロード機能を使うために、Firebase の Blaze プラン（従量課金）に切り替える必要があります。無料枠が大きいので、個人開発レベルでは基本的に無料で使えます。課金情報の入力をお願いします。完了したら教えてください。」
+3. **ユーザーの課金設定完了を待つ。** 課金情報の入力はユーザー自身が行う。
 
-「コピーした設定値を `.env.local` ファイルに貼り付けます。ファイルを作成しますか？」
-
-ユーザーの確認後、`.env.local` を作成：
-```
-NEXT_PUBLIC_FIREBASE_API_KEY=（ここに apiKey）
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=（ここに authDomain）
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=（ここに projectId）
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=（ここに storageBucket）
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=（ここに messagingSenderId）
-NEXT_PUBLIC_FIREBASE_APP_ID=（ここに appId）
-```
-
-各値をユーザーに入力してもらう。
+Storage を使わない場合はこのステップをスキップする。
 
 ### ステップ 4: Authentication の有効化
 
-「Firebase Console → Authentication → Sign-in method で使いたいログイン方法を有効にしてください」
+1. Firebase Console のサイドバーから「Authentication」に移動
+2. 「始める」をクリック
+3. 「Sign-in method」タブで必要なプロバイダーを有効化：
+   - **メール/パスワード**: 「メール/パスワード」をクリック → 有効にする → 保存
+   - **Google**: 「Google」をクリック → 有効にする → プロジェクトのサポートメール（ユーザーのメール）を選択 → 保存
+4. `PROJECT.md` の技術設計に記載された認証方法に合わせて設定する
 
-おすすめ:
-- メール/パスワード（基本）
-- Google ログイン（簡単）
+ユーザーに伝える：「ログイン機能の設定を行っています。」
 
 ### ステップ 5: Firestore Database の作成
 
-「Firebase Console → Firestore Database → データベースを作成してください」
+1. Firebase Console のサイドバーから「Firestore Database」に移動
+2. 「データベースを作成」をクリック
+3. ロケーション: `asia-northeast1`（東京）を選択
+4. セキュリティルール: 「テストモードで開始」を選択
+5. 作成完了を待つ
 
-- ロケーション: `asia-northeast1`（東京）を推奨
-- セキュリティルール: 「テストモードで開始」を選択（後で本番用に変更する）
+ユーザーに伝える：「データベースを作成しています。」
 
-### ステップ 6: MCP の設定（オプション）
+### ステップ 6: Storage の有効化（必要な場合）
 
-Firebase MCP を使う場合：
-1. Firebase Console → プロジェクトの設定 → サービスアカウント
-2. 「新しい秘密鍵の生成」をクリック
-3. ダウンロードしたJSONファイルのパスを `.mcp.json` の `SERVICE_ACCOUNT_KEY_PATH` に設定
+`PROJECT.md` で Storage を使う場合：
 
-### ステップ 7: 動作確認
+1. Firebase Console のサイドバーから「Storage」に移動
+2. 「始める」をクリック
+3. セキュリティルール: デフォルトのまま「次へ」
+4. ロケーション: Firestore と同じ `asia-northeast1`
+5. 完了を待つ
 
-設定完了後:
-1. `npm run dev` でサーバーを起動
-2. ブラウザでアプリを開く
-3. コンソールにFirebaseのエラーが出ていないことを確認
+### ステップ 7: ウェブアプリの追加と設定値の取得
 
-「Firebase のセットアップが完了しました！🎉」
+1. Firebase Console → プロジェクトの設定（歯車アイコン）→ 「全般」
+2. 「マイアプリ」セクションの「ウェブ」アイコン（`</>`）をクリック
+3. アプリのニックネームを入力（プロジェクト名）
+4. Firebase Hosting はチェックしない
+5. 「アプリを登録」をクリック
+6. 表示される `firebaseConfig` の値を読み取る
+7. `.env.local` ファイルを作成して設定値を書き込む：
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
+```
+
+ユーザーに伝える：「Firebase の設定値を取得して、プロジェクトに保存しました。」
+
+### ステップ 8: 完了
+
+「Firebase のセットアップが完了しました！🎉 データベースとログイン機能が使えるようになりました。」
+
+## ブラウザ操作がうまくいかない場合
+
+Firebase Console のUIが変わっていたり、ボタンが見つからない場合：
+1. スクリーンショットを撮って状況を確認する
+2. ユーザーに「画面に〇〇と書かれたボタンが見えますか？クリックしてください」と案内する
+3. 2〜3回試してうまくいかなければ、URLを直接提示してユーザーに手動操作してもらう

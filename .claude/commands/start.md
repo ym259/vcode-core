@@ -102,19 +102,35 @@ collections:
 ユーザーが作りたいアプリの種類が分かった時点で、コーディングに入る前にデザインの方向性を決める。
 `.claude/commands/design.md` の手順に従って：
 
-1. 既存の類似サービスをリサーチし、ブラウザで表示する
-2. ユーザーにレイアウト・カラー・雰囲気の好みを聞く
-3. フィードバックをもとにデザインシステム（globals.css, design-system.md）を更新する
-4. プレビューページを作成して確認してもらう
-5. OKが出るまで調整を繰り返す
+1. レイアウト・カラー・雰囲気の候補を `AskUserQuestion` で提示して選んでもらう
+2. フィードバックをもとにデザインシステム（globals.css, design-system.md）を更新する
 
-「コーディングを始める前に、デザインの方向性を決めましょう。まず参考になるサービスを見てみましょう。」
+「コーディングを始める前に、デザインの方向性を決めましょう。」
 
 ### フェーズ 4: 環境セットアップ
 
-5. Firebaseの設定状態を確認する
-   - `.env.local` が存在しない、または Firebase 設定が空の場合 → `/firebase-setup` を案内
-   - 設定済みの場合 → 次のステップへ
+#### 4a. GitHub リポジトリの設定
+
+ユーザーにコードを保存する GitHub リポジトリが必要か確認する。
+
+1. `AskUserQuestion` で聞く：
+   - question: "コードを保存する GitHub リポジトリはありますか？"
+   - header: "GitHub"
+   - options:
+     - "新しく作りたい" → ユーザーに GitHub でリポジトリを作成してもらい、URLを教えてもらう。その後 `git remote set-url origin <URL>` で設定。
+     - "既にある" → URLを教えてもらい、`git remote set-url origin <URL>` で設定。
+     - "後で設定する" → スキップ
+     - "GitHubを使わない" → スキップ
+
+2. リポジトリが設定されたら、初回コミット＆プッシュする：
+   - `git add -A && git commit -m "Initial project setup"`
+   - `git push -u origin main`
+
+#### 4b. Firebase の設定
+
+Firebaseの設定状態を確認する：
+- `.env.local` が存在しない、または Firebase 設定が空の場合 → `/firebase-setup` フローを実行（ブラウザでアシスト）
+- 設定済みの場合 → 次のステップへ
 
 ### フェーズ 5: 実装開始
 
