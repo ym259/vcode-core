@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "firebase": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/firebase-mcp"],
+      "env": {
+        "SERVICE_ACCOUNT_KEY_PATH": "",
+        "FIREBASE_STORAGE_BUCKET": ""
+      }
+    }
+  }
+}
