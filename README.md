@@ -59,7 +59,7 @@ src/
 └── types/
     └── index.ts           # 共有 TypeScript 型定義
 
-.mcp.json                  # Firebase MCP サーバー設定
+.mcp.json                  # Firebase MCP サーバー設定（firebase-tools 公式）
 .env.example               # 環境変数テンプレート
 components.json            # shadcn/ui 設定
 ```
