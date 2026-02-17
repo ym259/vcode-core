@@ -20,6 +20,10 @@ This is a **vibe coding template** for building web apps with non-engineers (pri
 - **Forms**: react-hook-form + zod validation
 - **Deployment**: Vercel
 
+## Important: Do NOT Explore the Codebase
+
+This is a pre-configured template. The entire structure is documented below and in `README.md`. **Do NOT use Explore agents or read every file** — you already have all the information you need from these instructions and the rules files. Jump straight into helping the user build.
+
 ## First Run Behavior
 
 When you first open this project:
