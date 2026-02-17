@@ -31,7 +31,8 @@ cd my-app && npm install
 │   ├── nextjs.md          # Next.js App Router conventions
 │   └── deployment.md      # Vercel deployment checklist
 ├── commands/
-│   ├── start.md           # /start — onboarding flow
+│   ├── start.md           # /start — onboarding flow (includes /design)
+│   ├── design.md          # /design — design research & feedback
 │   ├── firebase-setup.md  # /firebase-setup — Firebase project setup guide
 │   ├── design-check.md    # /design-check — UI consistency review
 │   ├── deploy.md          # /deploy — Vercel deployment guide
@@ -64,7 +65,8 @@ button, card, input, label, tabs, table, badge, progress, avatar, sidebar, dialo
 
 | Command | Description |
 |---------|-------------|
-| `/start` | Onboarding — asks what to build, creates PROJECT.md, starts coding |
+| `/start` | Onboarding — asks what to build, runs design research, starts coding |
+| `/design` | Design research — browses reference apps, collects feedback, updates design system |
 | `/firebase-setup` | Step-by-step Firebase project creation guide |
 | `/design-check` | Reviews all UI for design system consistency |
 | `/deploy` | Vercel deployment walkthrough |

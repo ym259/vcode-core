@@ -62,7 +62,8 @@ When you first open this project:
 
 | Command | Description |
 |---------|-------------|
-| `/start` | Initial onboarding — asks what to build, creates PROJECT.md |
+| `/start` | Initial onboarding — asks what to build, runs design research, starts coding |
+| `/design` | Design research — browses reference apps, collects feedback, updates design system |
 | `/design-check` | Reviews UI for design system consistency |
 | `/firebase-setup` | Guides through Firebase project creation and config |
 | `/deploy` | Step-by-step Vercel deployment guide |
