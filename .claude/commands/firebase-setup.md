@@ -28,16 +28,28 @@ Chrome MCP でブラウザタブを作成し、Firebase Console を開く：
 
 ユーザーに伝える：「Firebase プロジェクトを作成しています。少し時間がかかります。」
 
-### ステップ 3: Blaze プランへのアップグレード（Storage が必要な場合）
+### ステップ 3: ウェブアプリの追加と設定値の取得
 
-`PROJECT.md` の技術設計で Firebase Storage を使う場合：
+プロジェクト作成直後に設定値を取得する（後のステップで必要）：
 
-1. Firebase Console の左下「Spark」プラン表示をクリック、または課金ページに移動
-2. ユーザーに伝える：
-   「画像のアップロード機能を使うために、Firebase の Blaze プラン（従量課金）に切り替える必要があります。無料枠が大きいので、個人開発レベルでは基本的に無料で使えます。課金情報の入力をお願いします。完了したら教えてください。」
-3. **ユーザーの課金設定完了を待つ。** 課金情報の入力はユーザー自身が行う。
+1. Firebase Console → プロジェクトの設定（歯車アイコン）→ 「全般」
+2. 「マイアプリ」セクションの「ウェブ」アイコン（`</>`）をクリック
+3. アプリのニックネームを入力（プロジェクト名）
+4. Firebase Hosting はチェックしない
+5. 「アプリを登録」をクリック
+6. 表示される `firebaseConfig` の値を読み取る
+7. `.env.local` ファイルを作成して設定値を書き込む：
 
-Storage を使わない場合はこのステップをスキップする。
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
+```
+
+ユーザーに伝える：「Firebase の設定値を取得して、プロジェクトに保存しました。」
 
 ### ステップ 4: Authentication の有効化
 
@@ -60,38 +72,23 @@ Storage を使わない場合はこのステップをスキップする。
 
 ユーザーに伝える：「データベースを作成しています。」
 
-### ステップ 6: Storage の有効化（必要な場合）
+### ステップ 6: Storage の有効化（必要な場合のみ）
 
-`PROJECT.md` で Storage を使う場合：
+**`PROJECT.md` の技術設計で Firebase Storage を使う場合のみ実行する。使わない場合はスキップ。**
 
-1. Firebase Console のサイドバーから「Storage」に移動
-2. 「始める」をクリック
-3. セキュリティルール: デフォルトのまま「次へ」
-4. ロケーション: Firestore と同じ `asia-northeast1`
-5. 完了を待つ
+Storage には Blaze プラン（従量課金）が必要：
 
-### ステップ 7: ウェブアプリの追加と設定値の取得
+1. Firebase Console の左下「Spark」プラン表示をクリック、または課金ページに移動
+2. ユーザーに伝える：
+   「画像のアップロード機能を使うために、Firebase の Blaze プラン（従量課金）に切り替える必要があります。無料枠が大きいので、個人開発レベルでは基本的に無料で使えます。課金情報の入力をお願いします。完了したら教えてください。」
+3. **ユーザーの課金設定完了を待つ。** 課金情報の入力はユーザー自身が行う。
+4. Blaze プランになったら、サイドバーから「Storage」に移動
+5. 「始める」をクリック
+6. セキュリティルール: デフォルトのまま「次へ」
+7. ロケーション: Firestore と同じ `asia-northeast1`
+8. 完了を待つ
 
-1. Firebase Console → プロジェクトの設定（歯車アイコン）→ 「全般」
-2. 「マイアプリ」セクションの「ウェブ」アイコン（`</>`）をクリック
-3. アプリのニックネームを入力（プロジェクト名）
-4. Firebase Hosting はチェックしない
-5. 「アプリを登録」をクリック
-6. 表示される `firebaseConfig` の値を読み取る
-7. `.env.local` ファイルを作成して設定値を書き込む：
-
-```
-NEXT_PUBLIC_FIREBASE_API_KEY=...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-NEXT_PUBLIC_FIREBASE_APP_ID=...
-```
-
-ユーザーに伝える：「Firebase の設定値を取得して、プロジェクトに保存しました。」
-
-### ステップ 8: 完了
+### ステップ 7: 完了
 
 「Firebase のセットアップが完了しました！🎉 データベースとログイン機能が使えるようになりました。」
 

@@ -9,25 +9,27 @@
 - 技術的な判断（DB設計、ライブラリ選定、実装順序など）はすべて Claude が決めて提案する。
 - 開発サーバーは最初のバージョンが完成するまで起動しない。
 
+## 事前チェック
+
+フローを開始する前に Chrome MCP（ブラウザ操作ツール）が利用可能か確認する。
+`tabs_context_mcp` を呼んでエラーになる場合、ユーザーに案内する：
+「ブラウザ操作のために Claude Code Chrome 拡張が必要です。こちらからインストールしてください: https://claude.com/ja-jp/chrome」
+
 ## 手順
 
 ### フェーズ 1: ヒアリング
 
 ユーザーの要望を理解することに集中する。技術的な質問は一切しない。
 **すべての質問は `AskUserQuestion` ツールを使って選択式UIで表示すること。** プレーンテキストで質問を書かない。
+**可能な限り複数の質問を1回の `AskUserQuestion` コールにまとめる**（最大4問まで）。
 
 1. 日本語で挨拶してから、`AskUserQuestion` で何を作りたいか聞く
    - header: "アプリ種類"
    - 代表的なアプリ種類を選択肢として生成する（ユーザーは「Other」で自由入力も可能）
 
-2. 回答に基づいて、`AskUserQuestion` でターゲットユーザーを聞く
-   - header: "ターゲット"
-   - アプリ種類に合わせた選択肢を動的に生成する
-
-3. 回答に基づいて、`AskUserQuestion` で主要機能を聞く
-   - header: "コア機能"
-   - multiSelect: true
-   - アプリ種類とターゲットに合わせた機能候補を動的に生成する
+2. 回答に基づいて、ターゲットと主要機能を **1回の `AskUserQuestion` でまとめて聞く**：
+   - 質問1: ターゲットユーザー (header: "ターゲット") — アプリ種類に合わせた選択肢を動的に生成
+   - 質問2: 主要機能 (header: "コア機能", multiSelect: true) — アプリ種類に合わせた機能候補を動的に生成
 
 **聞かないこと：**
 - 優先順位（どこから作るか） → Claude が判断する
@@ -39,61 +41,58 @@
 ヒアリング結果をもとに、Claude が技術的な計画を立てて `PROJECT.md` を作成する。
 ユーザーに「計画をまとめますね」と伝えてから作成する。
 
-```markdown
-# プロジェクト名
+`PROJECT.md` のテンプレート：
 
-## 概要
-[ユーザーの回答をもとに]
+    # プロジェクト名
 
-## ターゲットユーザー
-[ユーザーの回答をもとに]
+    ## 概要
+    [ユーザーの回答をもとに]
 
-## 主要機能（v1）
-- [ ] 機能1
-- [ ] 機能2
-- [ ] 機能3
+    ## ターゲットユーザー
+    [ユーザーの回答をもとに]
 
-## 技術設計
+    ## 主要機能（v1）
+    - [ ] 機能1
+    - [ ] 機能2
+    - [ ] 機能3
 
-### ページ構成
-- `/` — トップページ or ダッシュボード
-- `/xxx` — 各機能のページ
-- ...
+    ## 技術設計
 
-### Firestore データ構造
-```
-collections:
-  users/{userId}:
-    - displayName: string
-    - email: string
-    - createdAt: timestamp
-    - updatedAt: timestamp
-  [アプリに必要なコレクション]:
-    - [フィールド定義]
-```
+    ### ページ構成
+    - `/` — トップページ or ダッシュボード
+    - `/xxx` — 各機能のページ
 
-### Firebase 利用サービス
-- Auth: [使う認証方法（Google, メール/パスワードなど）]
-- Firestore: [コレクション設計の概要]
-- Storage: [使う場合のみ記載（画像アップロードなど）]
+    ### Firestore データ構造
+    users/{userId}:
+      - displayName: string
+      - email: string
+      - createdAt: timestamp
+      - updatedAt: timestamp
+    [アプリに必要なコレクション]:
+      - [フィールド定義]
 
-### 追加ライブラリ
-[必要に応じて。基本スタックで足りる場合は「なし」]
+    ### Firebase 利用サービス
+    - Auth: [使う認証方法（Google, メール/パスワードなど）]
+    - Firestore: [コレクション設計の概要]
+    - Storage: [使う場合のみ記載（画像アップロードなど）]
 
-### 実装順序
-1. [Claude が最適な順序を決定]
-2. ...
-3. ...
+    ### 追加ライブラリ
+    [必要に応じて。基本スタックで足りる場合は「なし」]
 
-## 技術スタック
-- Next.js (App Router)
-- Firebase (Auth, Firestore, Storage)
-- shadcn/ui + Tailwind CSS
-- Vercel (デプロイ)
-```
+    ### 実装順序
+    1. [Claude が最適な順序を決定]
+    2. ...
+    3. ...
+
+    ## 技術スタック
+    - Next.js (App Router)
+    - Firebase (Auth, Firestore, Storage)
+    - shadcn/ui + Tailwind CSS
+    - Vercel (デプロイ)
 
 `PROJECT.md` を作成したら、ユーザーに内容を**わかりやすい言葉で**要約して確認を求める。
 技術用語をそのまま見せるのではなく、「こういう画面を作って、こういうデータを保存します」のように説明する。
+**ユーザーが OK するまで次のフェーズに進まない。** 修正リクエストがあれば反映する。
 
 ### フェーズ 3: デザインリサーチ
 
@@ -102,7 +101,7 @@ collections:
 ユーザーが作りたいアプリの種類が分かった時点で、コーディングに入る前にデザインの方向性を決める。
 `.claude/commands/design.md` の手順に従って：
 
-1. レイアウト・カラー・雰囲気の候補を `AskUserQuestion` で提示して選んでもらう
+1. レイアウト・カラー・雰囲気を `AskUserQuestion` で**1回のコールでまとめて**聞く
 2. フィードバックをもとにデザインシステム（globals.css, design-system.md）を更新する
 
 「コーディングを始める前に、デザインの方向性を決めましょう。」
@@ -111,20 +110,18 @@ collections:
 
 #### 4a. GitHub リポジトリの設定
 
-ユーザーにコードを保存する GitHub リポジトリが必要か確認する。
+`AskUserQuestion` で聞く：
+- question: "コードを保存する GitHub リポジトリはありますか？"
+- header: "GitHub"
+- options:
+  - "新しく作りたい" → Chrome MCP で `https://github.com/new` を開く。ユーザーにログインしてもらい、ログイン完了を待つ。その後エージェントがリポジトリ名を入力し、Private を選択して作成。作成後のURLを取得して設定。
+  - "既にある" → URLを教えてもらう。
+  - "後で設定する" → スキップ
 
-1. `AskUserQuestion` で聞く：
-   - question: "コードを保存する GitHub リポジトリはありますか？"
-   - header: "GitHub"
-   - options:
-     - "新しく作りたい" → ユーザーに GitHub でリポジトリを作成してもらい、URLを教えてもらう。その後 `git remote set-url origin <URL>` で設定。
-     - "既にある" → URLを教えてもらい、`git remote set-url origin <URL>` で設定。
-     - "後で設定する" → スキップ
-     - "GitHubを使わない" → スキップ
-
-2. リポジトリが設定されたら、初回コミット＆プッシュする：
-   - `git add -A && git commit -m "Initial project setup"`
-   - `git push -u origin main`
+リポジトリが設定されたら：
+1. 現在の origin を確認し、必要に応じて `git remote set-url origin <URL>` または `git remote add origin <URL>` で設定
+2. `git add -A && git commit -m "Initial project setup"`
+3. `git push -u origin main`（リジェクトされたら `--force` せず、ユーザーに相談する）
 
 #### 4b. Firebase の設定
 
@@ -136,7 +133,7 @@ Firebaseの設定状態を確認する：
 
 **重要: 開発サーバー（`npm run dev`）はこのフェーズの最後、最初のバージョンが完成してからユーザーに確認してもらうタイミングで起動する。ヒアリング中やコーディング開始前にサーバーを起動しないこと。**
 
-6. `PROJECT.md` の実装順序に従って構築する
+1. `PROJECT.md` の実装順序に従って構築する
    - デザインフェーズで決定したレイアウト・カラーを使う
    - まずレイアウト（サイドバー or ヘッダー）を作成
    - 実装順序の最初の機能から UI を構築
