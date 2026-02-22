@@ -85,11 +85,43 @@ const messages = {
 
 ## IME Handling
 
-For controlled inputs where you need to prevent intermediate IME composition from triggering state updates, handle composition events:
+Japanese input uses IME (Input Method Editor). Users type phonetic characters and press Enter to confirm Kanji conversion. This causes a critical bug: **pressing Enter during Kanji conversion can accidentally submit forms or send chat messages.**
+
+### CRITICAL: Enter Key in Chat/Message UIs
+
+Any input where Enter submits (chat, comment boxes, search with instant submit) **MUST** guard against IME composition. Without this, Japanese users cannot type Kanji at all — every Enter to confirm conversion submits the form instead.
 
 ```tsx
 const [isComposing, setIsComposing] = useState(false);
 
+const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  // Do NOT submit while IME is composing (e.g., converting to Kanji)
+  if (e.key === "Enter" && !e.shiftKey && !isComposing) {
+    e.preventDefault();
+    handleSubmit();
+  }
+};
+
+<Textarea
+  onCompositionStart={() => setIsComposing(true)}
+  onCompositionEnd={() => setIsComposing(false)}
+  onKeyDown={handleKeyDown}
+/>
+```
+
+**ALWAYS apply this pattern** when building:
+- Chat / messaging UIs
+- Comment input fields
+- Search bars that submit on Enter
+- Any input where Enter triggers an action
+
+Note: `e.nativeEvent.isComposing` also works as an alternative to tracking state manually, but is less reliable across browsers. The `useState` approach above is the safest.
+
+### onChange During Composition
+
+For controlled inputs where intermediate IME input causes visible bugs (e.g., flickering, premature search), guard `onChange` as well:
+
+```tsx
 <Input
   onCompositionStart={() => setIsComposing(true)}
   onCompositionEnd={() => setIsComposing(false)}
@@ -101,4 +133,4 @@ const [isComposing, setIsComposing] = useState(false);
 />
 ```
 
-Only use this pattern when intermediate input causes visible bugs. Standard shadcn Input works fine for most cases.
+Standard shadcn Input works fine for most form fields — only add `onChange` guard when intermediate input causes actual bugs. The **Enter key guard above is always required** for submit-on-Enter inputs.

@@ -89,4 +89,9 @@ Detailed rules are in `.claude/rules/`:
 - `firebase.md` — Firebase patterns, security rules, and pitfalls
 - `japanese-text.md` — Japanese typography and text handling
 - `nextjs.md` — Next.js App Router conventions
+- `security.md` — API key management, server-side boundaries, common vulnerabilities
+- `code-quality.md` — File length limits, refactoring triggers, testing strategy
+- `ux-patterns.md` — Loading states, form UX, navigation, debounce, animation, error recovery
+- `git-workflow.md` — Commit frequency, safe recovery, never force-push
+- `cost-awareness.md` — Firebase/Vercel free tier limits, when to warn about costs
 - `deployment.md` — Vercel deployment checklist

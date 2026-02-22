@@ -38,6 +38,73 @@
 - Use CSS Grid or Flexbox for layouts — never use absolute positioning for layout
 - Responsive: mobile-first with `sm:`, `md:`, `lg:` breakpoints
 
+## Scroll & Viewport
+
+This template builds **web apps** (dashboards, chat, tools), not content sites. Use the **app shell pattern**: fixed outer frame, scrollable inner content.
+
+### Default App Shell Structure
+```tsx
+{/* Root: lock to viewport, no page-level scroll */}
+<div className="flex h-dvh overflow-hidden">
+  {/* Sidebar: fixed, scrolls independently if needed */}
+  <aside className="w-64 shrink-0 overflow-y-auto border-r">
+    ...
+  </aside>
+
+  {/* Main area: flex column for header + scrollable content */}
+  <div className="flex flex-1 flex-col overflow-hidden">
+    {/* Header: fixed at top */}
+    <header className="shrink-0 border-b px-6 py-4">
+      ...
+    </header>
+
+    {/* Content: this is the only part that scrolls */}
+    <main className="flex-1 overflow-y-auto p-6">
+      ...
+    </main>
+  </div>
+</div>
+```
+
+### Rules
+- **Use `h-dvh`** for the root container — never `h-screen` or `100vh` (breaks on mobile due to browser chrome)
+- **`overflow-hidden`** on the root and intermediate containers to prevent page-level scroll
+- **`overflow-y-auto`** only on the content area that should scroll
+- **`flex-1 overflow-hidden`** on intermediate wrappers — `flex-1` fills space, `overflow-hidden` prevents bleed
+- **`shrink-0`** on fixed elements (header, sidebar) so they don't collapse
+
+### Chat / Message UIs
+Chat UIs need **reverse scroll** (newest at bottom, scroll up for history):
+```tsx
+<div className="flex flex-1 flex-col overflow-hidden">
+  {/* Messages: scroll area, pinned to bottom */}
+  <div className="flex-1 overflow-y-auto flex flex-col-reverse">
+    ...
+  </div>
+
+  {/* Input: fixed at bottom */}
+  <div className="shrink-0 border-t p-4">
+    ...
+  </div>
+</div>
+```
+
+### Scrollbar Styling
+- Use Tailwind's `scrollbar-thin` utility or add custom CSS for consistent cross-platform appearance
+- On Windows, scrollbars are always visible and shift layout — add `scrollbar-gutter-stable` if content width must stay constant:
+  ```css
+  .scroll-stable {
+    scrollbar-gutter: stable;
+  }
+  ```
+- Keep scrollbar styling subtle — match `border` color, don't use bright or thick scrollbars
+
+### Common Pitfalls
+- **Missing height chain**: Every parent from root to scroll container must have explicit height (`h-dvh`, `flex-1`, etc.) — one missing link breaks the scroll
+- **`overflow-hidden` on body**: Don't set globally — it breaks shadcn Dialog, Sheet, and Dropdown scroll. Only set on the app shell root `div`
+- **Nested scroll containers**: Avoid more than 2 scroll areas visible at once — it confuses users, especially on mobile/trackpad
+- **Scroll on mobile**: Test with real touch scrolling. Nested scroll areas are harder to use on touch devices than with a mouse wheel
+
 ## Icons
 
 - **Lucide React only** — import from `lucide-react`

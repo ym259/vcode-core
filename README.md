@@ -2,12 +2,22 @@
 
 Claude Code で Web アプリをバイブコーディングするためのテンプレートです。クローンして `/start` を実行するだけで開発を始められます。
 
-## 必要なもの
+## 事前準備
 
-- **Node.js** (v18 以上)
-- **Claude Code** — ターミナルで動く AI コーディングツール
-- **Claude Code Chrome 拡張** — ブラウザ操作（GitHub リポジトリ作成、Firebase セットアップ）に必要
-  - インストール: https://claude.com/ja-jp/chrome
+### アカウント登録（すべて無料）
+
+- **GitHub** — コード管理・デプロイに必要 → https://github.com/signup
+- **Google アカウント** — Firebase（データベース・認証）に必要。Gmail があれば OK
+- **Vercel** — 本番デプロイ時に必要（開発中は不要） → https://vercel.com/signup
+
+> Firebase プロジェクトは `/start` の中で自動的に作成されます。事前作成は不要です。
+
+### ソフトウェアのインストール
+
+- **Git** — コード管理ツール → https://git-scm.com/downloads
+- **Node.js** (v18 以上) → https://nodejs.org/
+- **Claude Code** — ターミナルで動く AI コーディングツール → https://claude.com/download
+- **Claude Code Chrome 拡張** — ブラウザ操作（GitHub リポジトリ作成、Firebase セットアップ等）に必要 → https://claude.com/ja-jp/chrome
 
 ## クイックスタート
 
