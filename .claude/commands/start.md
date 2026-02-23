@@ -11,9 +11,13 @@
 
 ## 事前チェック
 
-フローを開始する前に Chrome MCP（ブラウザ操作ツール）が利用可能か確認する。
-`tabs_context_mcp` を呼んでエラーになる場合、ユーザーに案内する：
-「ブラウザ操作のために Claude Code Chrome 拡張が必要です。こちらからインストールしてください: https://claude.com/ja-jp/chrome」
+フローを開始する前に、まず `/preflight` の手順を実行して開発環境を確認する。
+（Node.js、npm、Git、node_modules、.env.local、Chrome MCP の状態をチェック）
+
+- **致命的な問題**（Node.js / npm / Git が無い）がある場合 → 修正手順を案内し、修正後にもう一度 `/start` を実行するよう伝えて **フローを中断する**
+- `node_modules` が無い場合 → `npm install` を実行してから続行する
+- `.env.local` が無い場合 → フェーズ 4b で `/firebase-setup` を実行するので、ここではスキップ
+- Chrome MCP が未接続の場合 → 警告を表示して続行（フェーズ 3・4a でブラウザ操作が必要になったら改めて案内する）
 
 ## 手順
 

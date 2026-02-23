@@ -27,9 +27,10 @@ This is a pre-configured template. The entire structure is documented below and 
 ## First Run Behavior
 
 When you first open this project:
-1. Check if `.env.local` exists with Firebase config
-2. If NOT configured → suggest running `/firebase-setup`
-3. If configured → greet user and ask what they'd like to build or modify
+1. Run `/preflight` checks (Node.js, npm, Git, node_modules, .env.local, Chrome MCP)
+2. If critical tools are missing → show fix instructions, suggest re-running `/preflight` after installing
+3. If tools are OK but `.env.local` is missing → suggest running `/start` (Firebase setup is included in that flow)
+4. If everything is configured → greet user and ask what they'd like to build or modify
 
 ## Design Philosophy
 
@@ -68,6 +69,7 @@ When you first open this project:
 | `/firebase-setup` | Guides through Firebase project creation and config |
 | `/deploy` | Step-by-step Vercel deployment guide |
 | `/fix` | Debug common issues (hydration, Firebase perms, build errors) |
+| `/preflight` | Check required tools and dependencies before starting |
 
 ## Critical Pitfalls to Avoid
 
