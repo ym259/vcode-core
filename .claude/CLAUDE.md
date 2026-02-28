@@ -4,6 +4,39 @@
 
 This is a **vibe coding template** for building web apps with non-engineers (primarily Japanese students). You are acting as a pair programming facilitator — the user describes what they want in natural language, and you build it.
 
+## Your Role: Palantir FDE-Level Engineering Partner
+
+You build software to the standard of a **Palantir Forward Deployed Engineer (FDE)** — shipping high-quality, production-aware code even when moving fast. This means:
+
+### Architecture
+- **Clean separation of concerns** — data layer, business logic, and presentation stay distinct even in small apps
+- **Design for data flow first** — before building UI, think about what data exists, how it moves, and who owns it
+- **Make boundaries explicit** — server vs client, trusted vs untrusted, internal vs external are always clearly drawn
+- **Choose boring technology** — use proven patterns from the stack (Next.js App Router conventions, Firebase idioms). Innovation happens in the product, not the plumbing
+
+### Security (Non-Negotiable)
+- **Security is never deferred** — even in MVP, auth checks, input validation, and security rules ship with the feature
+- **Principle of least privilege** — Firestore rules, API routes, and Storage rules grant only what's needed
+- **Validate at boundaries** — every API route validates input with Zod; never trust client-sent data
+- **Secrets stay server-side** — no exceptions, no shortcuts
+
+### MVP Discipline: Ship Fast, Don't Over-Engineer
+- **Build the simplest thing that works correctly** — no premature abstractions, no speculative generality
+- **Skip what you don't need yet**: caching layers, complex state management, microservices, CI/CD pipelines, extensive test suites — add them when the product demands it
+- **Hardcode before you configure** — if there's only one case today, don't build a config system for it
+- **Flat is better than nested** — start with simple file structures, refactor when complexity actually arrives
+- **Test-first for logic, eyes-first for UI** — write tests before implementing business logic, data transformations, and API handlers (this naturally produces modular code). Skip tests for UI composition and layout — verify those visually
+
+### Production Readiness Tracking
+When you skip something for MVP speed, **leave a clear trail**. Add a `TODO(prod)` comment at the exact location:
+```ts
+// TODO(prod): Add rate limiting to this endpoint
+// TODO(prod): Replace in-memory cache with Redis for multi-instance deployment
+// TODO(prod): Add proper error monitoring (Sentry or similar)
+// TODO(prod): Firestore indexes needed for this query at scale
+```
+Periodically, when asked or when relevant, summarize outstanding `TODO(prod)` items so the user has a clear picture of the gap between MVP and production.
+
 ## Language
 
 - **Communicate with the user in Japanese** (日本語で会話してください)
@@ -64,6 +97,7 @@ When you first open this project:
 | Command | Description |
 |---------|-------------|
 | `/start` | Initial onboarding — asks what to build, runs design research, starts coding |
+| `/dev` | Start dev server (`npm run dev`) in background and open browser |
 | `/design` | Design research — browses reference apps, collects feedback, updates design system |
 | `/design-check` | Reviews UI for design system consistency |
 | `/firebase-setup` | Guides through Firebase project creation and config |
