@@ -98,6 +98,9 @@ When you first open this project:
 |---------|-------------|
 | `/start` | Initial onboarding — asks what to build, runs design research, starts coding |
 | `/dev` | Start dev server (`npm run dev`) in background and open browser |
+| `/stop` | Stop the running dev server |
+| `/build` | Run `npm run build` and report results in Japanese |
+| `/todo-prod` | Scan all `TODO(prod)` comments and list production readiness gaps |
 | `/design` | Design research — browses reference apps, collects feedback, updates design system |
 | `/design-check` | Reviews UI for design system consistency |
 | `/firebase-setup` | Guides through Firebase project creation and config |
