@@ -130,7 +130,7 @@
 #### 4b. Firebase の設定
 
 Firebaseの設定状態を確認する：
-- `.env.local` が存在しない、または Firebase 設定が空の場合 → `/firebase-setup` フローを実行（ブラウザでアシスト）
+- `.env.local` が存在しない、または Firebase 設定が空の場合 → `/firebase-setup` フローを実行（Firebase MCP で自動セットアップ）
 - 設定済みの場合 → 次のステップへ
 
 ### フェーズ 5: 実装開始
