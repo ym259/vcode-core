@@ -29,12 +29,14 @@ Firebase プロジェクトの作成と設定を Firebase MCP ツールで自動
 `PROJECT.md` のプロジェクト名からプロジェクト ID を生成する（小文字・ハイフン区切り）。
 
 `firebase_create_project` ツールで作成：
+
 ```
 project_id: "<生成したID>"         # 例: my-todo-app-jp
 display_name: "<PROJECT.md のプロジェクト名>"
 ```
 
 成功したら `firebase_update_environment` でアクティブプロジェクトを設定：
+
 ```
 active_project: "<project_id>"
 ```
@@ -44,12 +46,14 @@ active_project: "<project_id>"
 ### ステップ 3: ウェブアプリの登録と設定値の取得
 
 `firebase_create_app` ツールでウェブアプリを登録：
+
 ```
 platform: "web"
 display_name: "<プロジェクト名>"
 ```
 
 `firebase_get_sdk_config` ツールで設定値を取得：
+
 ```
 platform: "web"
 ```
@@ -70,6 +74,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=<appId>
 ### ステップ 4: Firestore の作成
 
 `firebase_init` ツールで Firestore を初期化：
+
 ```
 features.firestore:
   location_id: "asia-northeast1"
@@ -93,6 +98,7 @@ features.firestore:
 `PROJECT.md` の技術設計に記載された認証方法に合わせて、`firebase_init` ツールで Auth を設定する。
 
 **Google ログインの場合：**
+
 ```
 features.auth:
   providers:
@@ -102,6 +108,7 @@ features.auth:
 ```
 
 **メール/パスワードの場合：**
+
 ```
 features.auth:
   providers:
@@ -109,6 +116,7 @@ features.auth:
 ```
 
 **両方の場合：**
+
 ```
 features.auth:
   providers:
@@ -116,6 +124,12 @@ features.auth:
     googleSignIn:
       oAuthBrandDisplayName: "<プロジェクト名>"
       supportEmail: "<ログイン中のメールアドレス>"
+```
+
+設定後、必ず以下のコマンドで Firebase Console に反映する：
+
+```
+npx firebase-tools deploy --only auth
 ```
 
 ユーザーに伝える：「ログイン機能の設定が完了しました。」
@@ -135,6 +149,7 @@ https://console.firebase.google.com/project/<project_id>/usage/details
 **ユーザーの課金設定完了を待つ。**
 
 Blaze プランに切り替わったら `firebase_init` ツールで Storage を設定：
+
 ```
 features.storage:
   rules_filename: "storage.rules"
@@ -149,6 +164,7 @@ features.storage:
 ## MCP ツールがエラーになった場合のフォールバック
 
 `firebase_create_project` や `firebase_init` がエラーになった場合：
+
 1. エラーメッセージを確認する
 2. プロジェクト ID が重複している場合 → 末尾に数字を追加して再試行（例: `my-app-2`）
 3. 権限エラーの場合 → `npx firebase-tools@latest login` の再実行をユーザーに依頼
