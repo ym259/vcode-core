@@ -130,7 +130,7 @@
 #### 4b. Firebase の設定
 
 Firebaseの設定状態を確認する：
-- `.env.local` が存在しない、または Firebase 設定が空の場合 → `/firebase-setup` フローを実行（ブラウザでアシスト）
+- `.env.local` が存在しない、または Firebase 設定が空の場合 → `/firebase-setup` フローを実行（Firebase MCP で自動セットアップ）
 - 設定済みの場合 → 次のステップへ
 
 ### フェーズ 5: 実装開始
@@ -141,5 +141,38 @@ Firebaseの設定状態を確認する：
    - デザインフェーズで決定したレイアウト・カラーを使う
    - まずレイアウト（サイドバー or ヘッダー）を作成
    - 実装順序の最初の機能から UI を構築
-   - **コードが書き終わったら**開発サーバーを起動する
+
+2. **Firestore クエリを書いたら必ずインデックスを確認する**
+
+   `where` と `orderBy` を**異なるフィールド**に使う場合、複合インデックスが必要。
+   コードを書いた直後に `firestore.indexes.json` を更新してデプロイすること。
+   デプロイしないと実行時エラーになりユーザーが混乱する。
+
+   **よくあるパターン（必ずインデックスが必要）：**
+   ```ts
+   // userId で絞り込み + createdAt で並び替え
+   where("userId", "==", uid), orderBy("createdAt", "desc")
+   // userId で絞り込み + completed でフィルタ + 並び替え
+   where("userId", "==", uid), where("completed", "==", false), orderBy("createdAt", "desc")
+   ```
+
+   **手順：**
+   1. `firestore.indexes.json` の `"indexes"` 配列にエントリを追加する：
+      ```json
+      {
+        "collectionGroup": "コレクション名",
+        "queryScope": "COLLECTION",
+        "fields": [
+          { "fieldPath": "userId", "order": "ASCENDING" },
+          { "fieldPath": "createdAt", "order": "DESCENDING" }
+        ]
+      }
+      ```
+   2. デプロイ（インデックス構築に1〜2分かかる）：
+      ```bash
+      npx firebase-tools deploy --only firestore:indexes
+      ```
+   3. 開発サーバーを起動する前にデプロイが完了していることを確認する
+
+3. **コードが書き終わり、インデックスのデプロイも完了したら**開発サーバーを起動する
    - ブラウザで `http://localhost:3000` を開いて動作確認を促す
