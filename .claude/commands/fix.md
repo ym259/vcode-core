@@ -25,11 +25,17 @@
 
 ### Firebase "permission denied" / アクセス拒否
 
-1. Firestore セキュリティルールを確認
-   - Firebase Console → Firestore → ルール
+**まず MCP ツールでルールを確認・修正する（コンソール操作不要）：**
+
+1. `firebase_get_security_rules` ツールで現在のルールを取得して確認
+2. 問題箇所を特定したら `firestore.rules` ファイルを直接編集
    - テスト中は `allow read, write: if request.auth != null;` で一時的に許可（本番では使わない）
-2. ユーザーが正しくログインしているか確認
-3. 読み書きしようとしているパスがルールと一致しているか確認
+3. `firebase_validate_security_rules` ツールで編集後のルールを検証
+4. 問題がなければ Bash で `npx firebase-tools deploy --only firestore:rules` でデプロイ
+
+**それ以外の原因：**
+- ユーザーが正しくログインしているか確認（`auth.currentUser` が null でないか）
+- 読み書きするパスがルールのパターンと一致しているか確認
 
 ### "Build failed" / ビルドエラー
 
@@ -59,6 +65,25 @@
 2. Vercel の環境変数を確認（全て設定されているか）
 3. Node.js のバージョンが合っているか確認
 4. ビルドログの具体的なエラーメッセージを確認
+
+### Firebase Auth "This domain is not authorized" / ドメインが承認されていない
+
+Google ログインや Email 認証で「このドメインは承認されていません」エラーが出る場合。
+
+**原因:** Firebase Auth の承認済みドメインリストに `localhost`（または本番ドメイン）が含まれていない。
+
+**注意:** 新規プロジェクトでは `localhost` はデフォルトで承認済み。削除された場合や別プロジェクトを使っている場合に発生する。
+
+承認済みドメインの追加は MCP ツール・Firebase CLI では対応していないため、以下の手順でコンソールから追加する：
+
+1. `firebase_get_environment` または `.firebaserc` でプロジェクト ID を確認
+2. Firebase Console → Authentication → Settings タブ → 承認済みドメイン
+   URL: `https://console.firebase.google.com/project/<project_id>/authentication/settings`
+3. 「ドメインを追加」→ `localhost` を追加して保存
+
+**本番デプロイ後に発生した場合：** `localhost` ではなく Vercel のドメイン（例: `my-app.vercel.app`）を同じ手順で追加する。
+
+---
 
 ### "Firebase App named '[DEFAULT]' already exists"
 
