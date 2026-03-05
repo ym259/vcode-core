@@ -1,6 +1,6 @@
 # /deploy - Vercel デプロイガイド
 
-Vercel へのデプロイ手順をガイドします。
+Vercel へのデプロイ手順をガイドする。
 
 ## 前提条件の確認
 
@@ -17,13 +17,13 @@ Vercel へのデプロイ手順をガイドします。
 npm run build
 ```
 
-「まずローカルでビルドが通るか確認しましょう。」
+「まずローカルでビルドが通るか確認しよう。」
 
 エラーがあれば修正してから次へ。
 
 ### ステップ 2: Vercel アカウント & プロジェクト作成
 
-「Vercel（https://vercel.com/）にログインして、GitHub リポジトリをインポートしてください。」
+ブラウザで Vercel（https://vercel.com/）を開き、ユーザーに以下を案内：
 
 1. 「New Project」をクリック
 2. GitHub リポジトリを選択
@@ -32,9 +32,9 @@ npm run build
 
 ### ステップ 3: 環境変数の設定
 
-「デプロイ前に環境変数を設定します。」
+「デプロイ前に環境変数を設定する。」
 
-`.env.example` の全項目を Vercel の Environment Variables に追加：
+Vercel のプロジェクト設定画面（Environment Variables セクション）で `.env.example` の全項目を追加：
 - NEXT_PUBLIC_FIREBASE_API_KEY
 - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
 - NEXT_PUBLIC_FIREBASE_PROJECT_ID
@@ -49,31 +49,50 @@ npm run build
 
 ### ステップ 4: デプロイ
 
-「環境変数を設定したら「Deploy」をクリックしてください。」
+「環境変数を設定したら「Deploy」をクリック。」
 
 ビルドログを確認しながら待つ。
 
-### ステップ 5: デプロイ後の確認
+### ステップ 5: 本番URLの取得と表示
 
+**重要: デプロイ完了後、必ず本番（Production）URL を取得してユーザーに伝えること。**
+
+Vercel ダッシュボードに表示されるURLは2種類ある：
+- **プレビューURL**（`xxx-yyy-zzz.vercel.app` 形式）— ブランチごとの一時的なURL
+- **本番URL**（`project-name.vercel.app` 形式）— メインの公開URL
+
+ブラウザで Vercel ダッシュボードの **Project → Settings → Domains** または **Project トップページ** を確認し、本番URLを見つける。
+
+Chrome ブラウザ操作ツールを使って Vercel ダッシュボードから本番URLを読み取り、ユーザーに伝える：
+1. プロジェクトのダッシュボードページを開く
+2. 「Domains」セクションまたはページ上部の本番URLを確認
+3. `project-name.vercel.app` 形式の本番URLをユーザーに伝える
+
+**プレビューURLだけ伝えて終わりにしないこと。必ず本番URLを確認して伝える。**
+
+### ステップ 6: デプロイ後の確認
+
+本番URLにアクセスして確認：
 - [ ] サイトが表示されるか
 - [ ] Firebase 接続が動作するか（ログイン、データ取得）
 - [ ] 画像が正しく表示されるか
 - [ ] コンソールにエラーがないか
 
-### ステップ 6: Firebase の本番設定
+### ステップ 7: Firebase の本番設定
 
-「最後に Firebase 側の設定を本番用に更新します。」
+「最後に Firebase 側の設定を本番用に更新する。」
 
 1. Firebase Console → Authentication → 承認済みドメイン
-   - Vercel のデプロイURLを追加（`*.vercel.app`）
+   - Vercel の本番URLを追加（`project-name.vercel.app`）
    - カスタムドメインがあればそれも追加
 2. Firestore セキュリティルールを本番用に更新
 3. Storage セキュリティルールを本番用に更新
 
-「デプロイ完了です！🎉」
+「デプロイ完了！本番URLはこちら → [取得した本番URL]」
 
 ## よくある問題
 
+- **プレビューURLしか見つからない**: Vercel ダッシュボードの Project トップページまたは Settings → Domains で本番URL（`project-name.vercel.app`）を確認
 - **ビルド失敗**: `npm run build` をローカルで実行して同じエラーが出るか確認
 - **環境変数が undefined**: Vercel ダッシュボードで変数名のスペルを確認、NEXT_PUBLIC_ プレフィックスを確認
 - **Firebase エラー**: 承認済みドメインの設定を確認
