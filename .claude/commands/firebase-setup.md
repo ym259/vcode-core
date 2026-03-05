@@ -1,114 +1,171 @@
 # /firebase-setup - Firebase プロジェクトセットアップ
 
-Firebase プロジェクトの作成と設定をブラウザ操作でアシストします。
+Firebase プロジェクトの作成と設定を Firebase MCP ツールで自動化します。
 
 ## 重要な原則
 
-- **ユーザーは非エンジニア。** 技術的な説明は最小限に、「次はここをクリックしてください」レベルで案内する。
-- Chrome MCP を使ってブラウザを操作し、Firebase Console の画面を直接開いてナビゲートする。
-- ユーザーがログインや課金設定など**アカウント操作が必要な部分だけ**ユーザーに操作してもらう。
-- それ以外のクリック操作（サービスの有効化、設定値のコピーなど）はエージェントが行う。
+- **ユーザーは非エンジニア。** 技術的な説明は最小限にする。
+- Firebase MCP ツールを最大限活用し、ブラウザ操作なしで完結させる。
+- ユーザーの手動操作が必要なのは **Firebase ログイン** と **Blaze プランへのアップグレード** のみ。
+- Chrome MCP は MCP ツールで対応できない場面のフォールバックとしてのみ使う。
 
 ## 手順
 
-### ステップ 1: Firebase Console を開く
+### ステップ 1: Firebase ログイン確認
 
-Chrome MCP でブラウザタブを作成し、Firebase Console を開く：
-- URL: `https://console.firebase.google.com/`
-- ユーザーに伝える：「Firebase Console を開きました。Googleアカウントでログインしてください。ログインが完了したら教えてください。」
-- **ユーザーのログイン完了を待つ。** ログインはユーザー自身が行う（エージェントは認証操作をしない）。
+`firebase_get_environment` ツールで現在の状態を確認する：
+
+- `Authenticated User` が表示されていれば → ステップ 2 へ
+- 未ログインの場合 → ユーザーに伝える：
+  「Firebase にログインが必要です。ターミナルで以下を実行してください：
+  ```
+  npx firebase-tools@latest login
+  ```
+  ブラウザが開いたら Google アカウントでログインして、完了したら教えてください。」
+  ログイン完了を待ってからステップ 2 へ。
 
 ### ステップ 2: プロジェクト作成
 
-ユーザーがログインしたら：
-1. 「プロジェクトを作成」ボタンをクリック
-2. プロジェクト名を入力（`PROJECT.md` のプロジェクト名を使う）
-3. Google Analytics はオフに設定
-4. 作成完了を待つ
+`PROJECT.md` のプロジェクト名からプロジェクト ID を生成する（小文字・ハイフン区切り）。
 
-ユーザーに伝える：「Firebase プロジェクトを作成しています。少し時間がかかります。」
-
-### ステップ 3: ウェブアプリの追加と設定値の取得
-
-プロジェクト作成直後に設定値を取得する（後のステップで必要）：
-
-1. Firebase Console → プロジェクトの設定（歯車アイコン）→ 「全般」
-2. 「マイアプリ」セクションの「ウェブ」アイコン（`</>`）をクリック
-3. アプリのニックネームを入力（プロジェクト名）
-4. Firebase Hosting はチェックしない
-5. 「アプリを登録」をクリック
-6. 表示される `firebaseConfig` の値を読み取る
-7. `.env.local` ファイルを作成して設定値を書き込む：
+`firebase_create_project` ツールで作成：
 
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-NEXT_PUBLIC_FIREBASE_APP_ID=...
+project_id: "<生成したID>"         # 例: my-todo-app-jp
+display_name: "<PROJECT.md のプロジェクト名>"
 ```
 
-ユーザーに伝える：「Firebase の設定値を取得して、プロジェクトに保存しました。」
+成功したら `firebase_update_environment` でアクティブプロジェクトを設定：
 
-### ステップ 4: Authentication の有効化
+```
+active_project: "<project_id>"
+```
 
-1. Firebase Console のサイドバーから「Authentication」に移動
-2. 「始める」をクリック
-3. 「Sign-in method」タブで必要なプロバイダーを有効化：
-   - **メール/パスワード**: 「メール/パスワード」をクリック → 有効にする → 保存
-   - **Google**: 「Google」をクリック → 有効にする → プロジェクトのサポートメール（ユーザーのメール）を選択 → 保存
-4. `PROJECT.md` の技術設計に記載された認証方法に合わせて設定する
+ユーザーに伝える：「Firebase プロジェクトを作成しました。」
 
-ユーザーに伝える：「ログイン機能の設定を行っています。」
+### ステップ 3: ウェブアプリの登録と設定値の取得
 
-### ステップ 5: Firestore Database の作成
+`firebase_create_app` ツールでウェブアプリを登録：
 
-1. Firebase Console のサイドバーから「Firestore Database」に移動
-2. 「データベースを作成」をクリック
-3. ロケーション: `asia-northeast1`（東京）を選択
-4. セキュリティルール: 「テストモードで開始」を選択
-5. 作成完了を待つ
+```
+platform: "web"
+display_name: "<プロジェクト名>"
+```
 
-ユーザーに伝える：「データベースを作成しています。」
+`firebase_get_sdk_config` ツールで設定値を取得：
+
+```
+platform: "web"
+```
+
+取得した値で `.env.local` を作成する：
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=<apiKey>
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<authDomain>
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=<projectId>
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=<storageBucket>
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<messagingSenderId>
+NEXT_PUBLIC_FIREBASE_APP_ID=<appId>
+```
+
+ユーザーに伝える：「Firebase の設定値をプロジェクトに保存しました。」
+
+### ステップ 4: Firestore の作成
+
+`firebase_init` ツールで Firestore を初期化：
+
+```
+features.firestore:
+  location_id: "asia-northeast1"
+  database_id: "(default)"
+  rules: |
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /{document=**} {
+          allow read, write: if request.auth != null;
+        }
+      }
+    }
+  rules_filename: "firestore.rules"
+```
+
+ユーザーに伝える：「Firestore データベース（東京リージョン）を作成しました。」
+
+### ステップ 5: Authentication の設定
+
+`PROJECT.md` の技術設計に記載された認証方法に合わせて、`firebase_init` ツールで Auth を設定する。
+
+**Google ログインの場合：**
+
+```
+features.auth:
+  providers:
+    googleSignIn:
+      oAuthBrandDisplayName: "<プロジェクト名>"
+      supportEmail: "<firebase_get_environment で取得した Authenticated User のメールアドレス>"
+```
+
+**メール/パスワードの場合：**
+
+```
+features.auth:
+  providers:
+    emailPassword: true
+```
+
+**両方の場合：**
+
+```
+features.auth:
+  providers:
+    emailPassword: true
+    googleSignIn:
+      oAuthBrandDisplayName: "<プロジェクト名>"
+      supportEmail: "<ログイン中のメールアドレス>"
+```
+
+設定後、必ず以下のコマンドで Firebase Console に反映する：
+
+```
+npx firebase-tools deploy --only auth
+```
+
+ユーザーに伝える：「ログイン機能の設定が完了しました。」
 
 ### ステップ 6: Storage の有効化（必要な場合のみ）
 
 **`PROJECT.md` の技術設計で Firebase Storage を使う場合のみ実行する。使わない場合はスキップ。**
 
-Storage には Blaze プラン（従量課金）が必要：
+Storage には Blaze プラン（従量課金）が必要。ユーザーに伝える：
+「画像のアップロード機能を使うために、Firebase の Blaze プラン（従量課金）への切り替えが必要です。無料枠が大きいため、個人開発レベルでは基本的に無料で使えます。
 
-1. Firebase Console の左下「Spark」プラン表示をクリック、または課金ページに移動
-2. ユーザーに伝える：
-   「画像のアップロード機能を使うために、Firebase の Blaze プラン（従量課金）に切り替える必要があります。無料枠が大きいので、個人開発レベルでは基本的に無料で使えます。課金情報の入力をお願いします。完了したら教えてください。」
-3. **ユーザーの課金設定完了を待つ。** 課金情報の入力はユーザー自身が行う。
-4. Blaze プランになったら、サイドバーから「Storage」に移動
-5. 「始める」をクリック
-6. セキュリティルール: デフォルトのまま「次へ」
-7. ロケーション: Firestore と同じ `asia-northeast1`
-8. 完了を待つ
+Firebase Console で課金設定をお願いします：
+https://console.firebase.google.com/project/<project_id>/usage/details
 
-### ステップ 7: Firebase MCP の接続確認
+完了したら教えてください。」
 
-プロジェクトには `.mcp.json` が含まれており、Firebase MCP サーバーが自動的に設定されている。
-Firebase MCP は Firebase CLI の認証情報を使うため、以下を実行してログイン状態を確認する：
+**ユーザーの課金設定完了を待つ。**
 
-```bash
-npx firebase-tools@latest login
+Blaze プランに切り替わったら `firebase_init` ツールで Storage を設定：
+
+```
+features.storage:
+  rules_filename: "storage.rules"
 ```
 
-ブラウザが開いてログイン画面が表示される場合、ユーザーに伝える：
-「Firebase のツール連携のためにログインが必要です。ブラウザが開いたので、先ほどと同じ Google アカウントでログインしてください。」
+### ステップ 7: 完了
 
-ログイン済みなら何もしなくてよい。
+「Firebase のセットアップが完了しました！データベースとログイン機能が使えるようになりました。
 
-### ステップ 8: 完了
+次は `/dev` で開発サーバーを起動できます。」
 
-「Firebase のセットアップが完了しました！🎉 データベースとログイン機能が使えるようになりました。」
+## MCP ツールがエラーになった場合のフォールバック
 
-## ブラウザ操作がうまくいかない場合
+`firebase_create_project` や `firebase_init` がエラーになった場合：
 
-Firebase Console のUIが変わっていたり、ボタンが見つからない場合：
-1. スクリーンショットを撮って状況を確認する
-2. ユーザーに「画面に〇〇と書かれたボタンが見えますか？クリックしてください」と案内する
-3. 2〜3回試してうまくいかなければ、URLを直接提示してユーザーに手動操作してもらう
+1. エラーメッセージを確認する
+2. プロジェクト ID が重複している場合 → 末尾に数字を追加して再試行（例: `my-app-2`）
+3. 権限エラーの場合 → `npx firebase-tools@latest login` の再実行をユーザーに依頼
+4. それでも解決しない場合のみ Chrome MCP でブラウザ操作にフォールバック
