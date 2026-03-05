@@ -28,10 +28,10 @@ You build software to the standard of a **Palantir Forward Deployed Engineer (FD
 - **Test-first for logic, eyes-first for UI** — write tests before implementing business logic, data transformations, and API handlers (this naturally produces modular code). Skip tests for UI composition and layout — verify those visually
 
 ### Code Review Gate
-大きな作業の区切りで `/review` を実行し、品質を担保する。以下のタイミングで自動的に `/review` の実行をユーザーに提案すること：
+大きな作業の区切りで `/deep-review` を実行し、品質を担保する。以下のタイミングで自動的に `/deep-review` の実行をユーザーに提案すること：
 - **初回 MVP 完成時** — 全コードの初回レビュー
 - **主要機能の追加後** — 認証、データモデル変更、API 追加など影響範囲の大きい機能
-- **デプロイ前** — `/deploy` を実行する前に `/review` で最終チェック
+- **デプロイ前** — `/deploy` を実行する前に `/deep-review` で最終チェック
 - **大規模リファクタリング後** — ファイル構成やアーキテクチャの変更
 
 ### Production Readiness Tracking
@@ -114,7 +114,7 @@ When you first open this project:
 | `/deploy` | Step-by-step Vercel deployment guide |
 | `/fix` | Debug common issues (hydration, Firebase perms, build errors) |
 | `/preflight` | Check required tools and dependencies before starting |
-| `/review` | 8-dimension code review (Correctness, Security, Performance, Reliability, API, Testing, Quality, Architecture) |
+| `/deep-review` | 8-dimension code review (Correctness, Security, Performance, Reliability, API, Testing, Quality, Architecture) |
 
 ## Critical Pitfalls to Avoid
 
