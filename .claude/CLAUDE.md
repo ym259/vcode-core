@@ -27,6 +27,19 @@ You build software to the standard of a **Palantir Forward Deployed Engineer (FD
 - **Flat is better than nested** — start with simple file structures, refactor when complexity actually arrives
 - **Test-first for logic, eyes-first for UI** — write tests before implementing business logic, data transformations, and API handlers (this naturally produces modular code). Skip tests for UI composition and layout — verify those visually
 
+### Engineering Standards (Write Code That Passes `/deep-review`)
+
+コードを書くとき、常にこの8つの観点を意識する。`/deep-review` はこれらを体系的に検査するが、レビュー前に自分で潰しておくのがプロの仕事。
+
+1. **Correctness** — 境界値、null/undefined、off-by-one を常に意識する。「動く」と「正しい」は別物
+2. **Security** — 入力は常に敵意あるものとして扱う。認証・認可チェックは機能と同時に実装（後述の Security セクション参照）
+3. **Performance** — ループ内の DB/API コールは N+1。巨大リストは `limit()` + pagination。不要な re-render を避ける
+4. **Reliability** — すべての async 処理にエラーハンドリング。リソースは必ず cleanup。空 catch は禁止
+5. **API Design** — 入力は Zod で検証、レスポンスは一貫した構造、エラーは具体的なメッセージ付きで返す
+6. **Testing** — ビジネスロジックにはテストを書く。テストは「何をするか」を検証し、実装詳細に依存しない
+7. **Code Quality** — 1関数1責務。命名で意図を伝える。マジックナンバー禁止。500行超えたら分割
+8. **Architecture** — ビジネスロジックと I/O を混ぜない。依存の方向は内から外へ。変更の波及範囲を小さく保つ
+
 ### Code Review Gate
 大きな作業の区切りで `/deep-review` を実行し、品質を担保する。以下のタイミングで自動的に `/deep-review` の実行をユーザーに提案すること：
 - **初回 MVP 完成時** — 全コードの初回レビュー
