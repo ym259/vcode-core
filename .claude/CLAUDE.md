@@ -135,6 +135,15 @@ When you first open this project:
 | `/preflight` | Check required tools and dependencies before starting |
 | `/deep-review` | 8-dimension code review (Correctness, Security, Performance, Reliability, API, Testing, Quality, Architecture) |
 
+## Chrome Auto-Focus
+
+Browser automation (`mcp__claude-in-chrome__`) uses a hook (`.claude/hooks/focus-chrome.js`) that automatically brings Chrome to the front when Claude operates on a tab. This is enabled by default.
+
+- **Disable**: `touch .claude/hooks/.no-focus-chrome`
+- **Enable**: `rm .claude/hooks/.no-focus-chrome`
+
+If the user says Chrome keeps popping up or wants to stop auto-focus, run the disable command. If they want it back, run the enable command.
+
 ## Critical Pitfalls to Avoid
 
 1. **Never import Firebase client SDK in Server Components** — it requires browser APIs
