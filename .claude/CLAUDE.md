@@ -32,7 +32,7 @@ You build software to the standard of a **Palantir Forward Deployed Engineer (FD
 コードを書くとき、常にこの8つの観点を意識する。`/deep-review` はこれらを体系的に検査するが、レビュー前に自分で潰しておくのがプロの仕事。
 
 1. **Correctness** — 境界値、null/undefined、off-by-one を常に意識する。「動く」と「正しい」は別物
-2. **Security** — 入力は常に敵意あるものとして扱う。認証・認可チェックは機能と同時に実装（後述の Security セクション参照）
+2. **Security** — 入力は常に敵意あるものとして扱う。認証・認可チェックは機能と同時に実装（上記 Security セクション参照）
 3. **Performance** — ループ内の DB/API コールは N+1。巨大リストは `limit()` + pagination。不要な re-render を避ける
 4. **Reliability** — すべての async 処理にエラーハンドリング。リソースは必ず cleanup。空 catch は禁止
 5. **API Design** — 入力は Zod で検証、レスポンスは一貫した構造、エラーは具体的なメッセージ付きで返す
