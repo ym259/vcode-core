@@ -20,7 +20,7 @@
 
 ### ステップ 0: デザインギャラリーの案内
 
-Design Gallery API から8つのスタイル情報を取得し、ユーザーに選択肢を提示する。
+Design Gallery API から12のスタイル情報を取得し、ユーザーに選択肢を提示する。
 
 **スタイル一覧の取得:**
 ```
@@ -37,6 +37,10 @@ WebFetch: GET https://design-gallery-six.vercel.app/api/styles
 6. Dark Executive — ダークテーマ、エメラルドアクセント、プレミアム感
 7. Neumorphic Soft — 浮き出しシャドウ、淡いグレー背景、触感的UI
 8. Lavender Analytics — アイコンサイドバー、パープル×シアン、ドーナツチャート
+9. Nature Organic — グリーン基調、大きめ角丸、アースカラー。自然で穏やか
+10. Pastel Playful — パステルカラー、グラデーションアクセント、可愛くてポップ
+11. Mono Editorial — モノクロ高コントラスト、角丸なし、タイポグラフィ重視
+12. Retro Brutalist — 太ボーダー、オフセットシャドウ、カラフル。個性的で力強い
 
 **ギャラリーの見せ方:**
 - API からスタイル一覧を取得し、各スタイルの名前と説明を日本語で提示
@@ -138,6 +142,10 @@ WebFetch: GET https://design-gallery-six.vercel.app/api/styles/{slug}
 | 6. Dark Executive | emerald `oklch(0.527 0.15 155)` | `.dark` クラスをデフォルトに |
 | 7. Neumorphic Soft | slate-teal 系 | `--background` を淡いグレーに |
 | 8. Lavender Analytics | indigo `oklch(0.488 0.18 264)` + cyan accent | `--background` を淡いラベンダーに |
+| 9. Nature Organic | emerald `oklch(0.527 0.15 155)` | `--radius` を 1rem に、グリーン系 |
+| 10. Pastel Playful | pink `oklch(0.65 0.18 350)` | パステルグラデーション、`--radius` 1rem |
+| 11. Mono Editorial | black `oklch(0.13 0 0)` | `--radius` 0、影なし、ボーダーのみ |
+| 12. Retro Brutalist | black `oklch(0.13 0 0)` | `--radius` 0、太ボーダー、オフセットシャドウ |
 
 #### ステップ 2b-manual: 手動で選んだ場合
 

@@ -92,7 +92,7 @@ When you first open this project:
 - Follow rules in `.claude/rules/japanese-text.md` for typography
 - Keep UI clean: generous whitespace, consistent spacing, subtle borders
 - Prefer composition of existing components over creating new custom ones
-- **Design Gallery**: 8つのデザインスタイルプレビューが外部アプリ (https://design-gallery-six.vercel.app) で提供される。`/design` コマンドが API (`GET /api/styles`, `GET /api/styles/[slug]`) からデザイントークンを取得し、自動適用する:
+- **Design Gallery**: 12のデザインスタイルプレビューが外部アプリ (https://design-gallery-six.vercel.app) で提供される。`/design` コマンドが API (`GET /api/styles`, `GET /api/styles/[slug]`) からデザイントークンを取得し、自動適用する:
   1. `WebFetch` で `/api/styles/[slug]` からトークン (cssVariables, designRules) を取得
   2. `globals.css` の CSS 変数をトークンの `cssVariables` で更新
   3. `.claude/rules/design-system.md` にトークンの `designRules` を Active Style セクションとして追記
