@@ -92,16 +92,18 @@ When you first open this project:
 - Follow rules in `.claude/rules/japanese-text.md` for typography
 - Keep UI clean: generous whitespace, consistent spacing, subtle borders
 - Prefer composition of existing components over creating new custom ones
-- **Design Gallery**: 18のレイアウトパターン × 12のカラーテーマが外部アプリ (https://design-gallery-six.vercel.app) で提供される。`/design` コマンドのフロー:
-  1. `WebFetch` で `GET /api/layouts` → 18レイアウト（SaaS、EC、コンテンツ、LP等）をカテゴリ別に提示
-  2. ユーザーがレイアウトを選択 → `GET /api/layouts/{slug}` で structureHint を取得
-  3. `WebFetch` で `GET /api/styles` → 12テーマを提示、ユーザーが選択
-  4. `GET /api/styles/{slug}` で cssVariables, designRules を取得
+- **Design Gallery**: 18のレイアウトパターン × 12のカラーテーマが外部アプリ (https://www.knorq.com/design-gallery) で提供される。`/design` コマンドのフロー:
+  1. `WebFetch` で `GET https://www.knorq.com/api/design-gallery/layouts` → 18レイアウト（SaaS、EC、コンテンツ、LP等）をカテゴリ別に提示
+  2. ユーザーがレイアウトを選択 → `GET https://www.knorq.com/api/design-gallery/layouts/{slug}` で structureHint を取得
+  3. `WebFetch` で `GET https://www.knorq.com/api/design-gallery/styles` → 12テーマを提示、ユーザーが選択
+  4. `GET https://www.knorq.com/api/design-gallery/styles/{slug}` で cssVariables, designRules を取得
   5. `globals.css` の CSS 変数をトークンの `cssVariables` で更新
   6. `.claude/rules/design-system.md` に Active Style + Active Layout セクションを追記
   7. `PROJECT.md` のデザイン方針セクションに選択レイアウトとスタイルを記録
   8. 以降の実装全体でそのレイアウトパターンとテイストを一貫して適用する
 - **ワンクリック連携**: Design Gallery のプレビューページに「この組み合わせを使う」ボタンがあり、クリックすると `/design layout=X theme=Y` 形式のコマンドがクリップボードにコピーされる。ユーザーがこれを Claude Code に貼り付けると、`/design` が `layout=` / `theme=` パラメータを認識し、対話をスキップして直接適用する（確認表示あり）。
+- **コンポーネントカタログ**: `https://www.knorq.com/design-gallery/components?theme={slug}` で、選択テーマ適用済みの各UIコンポーネント（Button, Card, Input, Badge, Table, Alert, Avatar, Navigation）の見た目を一覧で確認できる。テーマ選択後にリンクを提示すると、ユーザーが実装前に仕上がりをイメージしやすくなる。
+- **ページマップ**: `https://www.knorq.com/design-gallery/pagemap?pages={DSL}` で、ページ構成を視覚的に確認・編集できる。DSL フォーマットは `,` でチェーン区切り、`>` で親子関係を表す（例: `ホーム>商品一覧>商品詳細,ホーム>カート`）。実装計画フェーズでページ構成を提案する際にリンクを生成して提示する。
 
 ## Code Style
 
