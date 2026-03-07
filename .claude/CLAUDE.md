@@ -92,10 +92,10 @@ When you first open this project:
 - Follow rules in `.claude/rules/japanese-text.md` for typography
 - Keep UI clean: generous whitespace, consistent spacing, subtle borders
 - Prefer composition of existing components over creating new custom ones
-- **Design Gallery** (`/gallery`): 8つのデザインスタイルプレビューページ。ユーザーが番号を選んだら:
-  1. 該当スタイルファイル (`src/app/gallery/_styles/style-*.tsx`) を Read してテイストを把握
-  2. `globals.css` の CSS 変数をスタイルに合わせて更新（primary カラー、border-radius、sidebar 色等）
-  3. `.claude/rules/design-system.md` にスタイル固有の制約を追記（例: shadow レベル、角丸サイズ、ダークモード有無）
+- **Design Gallery**: 8つのデザインスタイルプレビューが外部アプリ (https://design-gallery-six.vercel.app) で提供される。`/design` コマンドが API (`GET /api/styles`, `GET /api/styles/[slug]`) からデザイントークンを取得し、自動適用する:
+  1. `WebFetch` で `/api/styles/[slug]` からトークン (cssVariables, designRules) を取得
+  2. `globals.css` の CSS 変数をトークンの `cssVariables` で更新
+  3. `.claude/rules/design-system.md` にトークンの `designRules` を Active Style セクションとして追記
   4. `PROJECT.md` のデザイン方針セクションに選択スタイルを記録
   5. 以降の実装全体でそのテイストを一貫して適用する
 
