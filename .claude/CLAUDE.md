@@ -92,12 +92,16 @@ When you first open this project:
 - Follow rules in `.claude/rules/japanese-text.md` for typography
 - Keep UI clean: generous whitespace, consistent spacing, subtle borders
 - Prefer composition of existing components over creating new custom ones
-- **Design Gallery**: 12のデザインスタイルプレビューが外部アプリ (https://design-gallery-six.vercel.app) で提供される。`/design` コマンドが API (`GET /api/styles`, `GET /api/styles/[slug]`) からデザイントークンを取得し、自動適用する:
-  1. `WebFetch` で `/api/styles/[slug]` からトークン (cssVariables, designRules) を取得
-  2. `globals.css` の CSS 変数をトークンの `cssVariables` で更新
-  3. `.claude/rules/design-system.md` にトークンの `designRules` を Active Style セクションとして追記
-  4. `PROJECT.md` のデザイン方針セクションに選択スタイルを記録
-  5. 以降の実装全体でそのテイストを一貫して適用する
+- **Design Gallery**: 18のレイアウトパターン × 12のカラーテーマが外部アプリ (https://design-gallery-six.vercel.app) で提供される。`/design` コマンドのフロー:
+  1. `WebFetch` で `GET /api/layouts` → 18レイアウト（SaaS、EC、コンテンツ、LP等）をカテゴリ別に提示
+  2. ユーザーがレイアウトを選択 → `GET /api/layouts/{slug}` で structureHint を取得
+  3. `WebFetch` で `GET /api/styles` → 12テーマを提示、ユーザーが選択
+  4. `GET /api/styles/{slug}` で cssVariables, designRules を取得
+  5. `globals.css` の CSS 変数をトークンの `cssVariables` で更新
+  6. `.claude/rules/design-system.md` に Active Style + Active Layout セクションを追記
+  7. `PROJECT.md` のデザイン方針セクションに選択レイアウトとスタイルを記録
+  8. 以降の実装全体でそのレイアウトパターンとテイストを一貫して適用する
+- **ワンクリック連携**: Design Gallery のプレビューページに「この組み合わせを使う」ボタンがあり、クリックすると `/design layout=X theme=Y` 形式のコマンドがクリップボードにコピーされる。ユーザーがこれを Claude Code に貼り付けると、`/design` が `layout=` / `theme=` パラメータを認識し、対話をスキップして直接適用する（確認表示あり）。
 
 ## Code Style
 

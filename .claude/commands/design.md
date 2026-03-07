@@ -1,6 +1,29 @@
 # /design - デザインリサーチ & フィードバック
 
-コーディングを始める前に、ユーザーと一緒にデザインの方向性を決めます。
+コーディングを始める前に、ユーザーと一緒にデザインの方向性を決める。
+
+## クイック適用モード
+
+`$ARGUMENTS` に `layout=` や `theme=` が含まれる場合、対話をスキップして直接適用する。
+Design Gallery の「この組み合わせを使う」ボタンからコピーされたコマンドを想定。
+
+**パース方法:** `$ARGUMENTS` から `layout=(\S+)` と `theme=(\S+)` を正規表現的に抽出する。
+
+- **両方あり** (`layout=X theme=Y`): レイアウト・テーマ選択を全スキップ。API で詳細を取得し、ユーザーに内容を確認表示してからステップ 3 を実行する。
+- **layout のみ** (`layout=X`): レイアウトは確定。テーマ選択（ステップ 2）のみ対話で実施。
+- **theme のみ** (`theme=Y`): テーマは確定。レイアウト選択（ステップ 0）のみ対話で実施。
+- **どちらもなし**: 従来フロー（ステップ 0 から開始）。
+
+**確認表示の例（両方ありの場合）:**
+```
+以下の組み合わせを適用します：
+- レイアウト: カンバンボード (#2) — Trello, Linear 風
+- テーマ: Clean Minimal (#1) — 細ボーダー、広い余白、影なし
+
+よろしいですか？
+```
+
+ユーザーが承認 → ステップ 3 を実行。変更したい場合 → 該当ステップに戻る。
 
 ## 前提
 
@@ -11,24 +34,95 @@
 
 - **デフォルトではブラウザでのクローリングをしない。** Claude の知識でデザイン候補を提示する。
 - SaaS のログイン後の画面はアクセスできないため、クローリングしてもLPしか見えず参考にならない。
-- Claude はデザインパターン、有名アプリのUI構成、レイアウト手法について十分な知識を持っている。
 - **ブラウザを使うのは以下の場合のみ：**
   - ユーザーが「〇〇のようなデザインにしたい」と具体的なアプリ名を挙げ、Claude がそのアプリのUIを十分に把握していない場合
   - その場合、LPを閲覧するか、Google画像検索で「〇〇 app screenshot」等を検索してUIを確認
 
+## フロー概要
+
+```
+レイアウト選択（何を作るか） → テーマ選択（見た目のスタイル） → 適用
+```
+
 ## 手順
 
-### ステップ 0: デザインギャラリーの案内
+### ステップ 0: レイアウトパターンの提示
 
-Design Gallery API から12のスタイル情報を取得し、ユーザーに選択肢を提示する。
+Design Gallery API から18のレイアウトパターンをカテゴリ別に取得し、ユーザーに提示する。
 
-**スタイル一覧の取得:**
+**レイアウト一覧の取得:**
+```
+WebFetch: GET https://design-gallery-six.vercel.app/api/layouts
+→ JSON: { layouts: [{ id, slug, name, nameJa, description, category, referenceApps, screenshotUrl }], categories: {...} }
+```
+
+**提示方法:**
+- カテゴリ別（SaaS、EC、コンテンツ、LP、ソーシャル、教育、管理画面）にグループ化して一覧表示
+- 各レイアウトに番号・日本語名・概要・参考アプリを表示
+- 「プレビューは https://design-gallery-six.vercel.app で確認できます」と補足
+- ユーザーのアプリに合いそうなレイアウトを推薦する（例：「LMSなら15番のコース一覧か16番のレッスン画面が近いです」）
+
+**フォールバック（API不通時）のレイアウト一覧：**
+
+| # | カテゴリ | 名前 | 概要 | 参考 |
+|---|---------|------|------|------|
+| 1 | SaaS | 分析ダッシュボード | サイドバー + KPI統計 + チャート + アクティビティ | Stripe, Mixpanel |
+| 2 | SaaS | カンバンボード | カラム型タスクボード | Trello, Linear |
+| 3 | SaaS | 受信トレイ/チャット | 会話リスト + メッセージスレッド分割 | Slack, Intercom |
+| 4 | SaaS | データテーブル | フィルター + ソート可能テーブル + ページネーション | Retool, Stripe |
+| 5 | EC | 商品カタログ | フィルターサイドバー + 商品グリッド | Amazon, Shopify |
+| 6 | EC | 商品詳細 | 画像ギャラリー + 購入情報 + レビュー | Amazon |
+| 7 | EC | カート/チェックアウト | カート一覧 + 注文サマリー + フォーム | Shopify |
+| 8 | コンテンツ | ブログ一覧 | 記事カードリスト + サイドバー | Medium, Substack |
+| 9 | コンテンツ | 記事リーダー | 目次サイドバー + 本文 | Notion, GitBook |
+| 10 | コンテンツ | ドキュメント | ツリーナビ + マークダウン風コンテンツ | GitBook, Docusaurus |
+| 11 | LP | SaaS LP | ヒーロー + 特徴 + 料金表 + CTA | Vercel, Linear |
+| 12 | LP | ポートフォリオ | ヒーロー + 作品ギャラリー + 自己紹介 + 連絡先 | — |
+| 13 | ソーシャル | ソーシャルフィード | 投稿タイムライン + ユーザーサイドバー | X, Instagram |
+| 14 | ソーシャル | フォーラム/Q&A | スレッドリスト + 投票 + カテゴリ | Reddit, SO |
+| 15 | 教育 | コース一覧 | コースカードグリッド + 進捗バー | Udemy, Coursera |
+| 16 | 教育 | レッスン画面 | 動画エリア + チャプターサイドバー | Udemy |
+| 17 | 管理画面 | CRM/連絡先管理 | リスト + 詳細パネル分割 | Salesforce, HubSpot |
+| 18 | 管理画面 | 設定画面 | セクションサイドバー + フォーム | GitHub Settings |
+
+**ユーザーがレイアウトを選択 → ステップ 1 に進む。**
+**ユーザーが「自分で考えたい」場合 → ステップ 1-manual に進む。**
+
+### ステップ 1: レイアウト詳細の取得
+
+選択されたレイアウトの structureHint を取得する：
+
+```
+WebFetch: GET https://design-gallery-six.vercel.app/api/layouts/{slug}
+→ JSON: { ..., features, structureHint }
+```
+
+structureHint はコーディング時の具体的な構成指示として design-system.md に書き込む。
+
+### ステップ 1-manual: 手動でレイアウトを決める場合
+
+`AskUserQuestion` で最大2つの質問を1回のコールでまとめて聞く：
+
+1. **レイアウト** (header: "レイアウト")
+   - アプリに適したレイアウトパターンを選択肢として提示
+   - 各選択肢に、そのレイアウトを採用している有名アプリの名前を添える
+   - 例: 「サイドバー型 — Notionのように左側にメニュー、右側にコンテンツ」
+
+2. **雰囲気** (header: "雰囲気")
+   - アプリのターゲットに合った雰囲気の候補を提示
+   - 各雰囲気がどんなUIになるかを description で説明する
+
+### ステップ 2: テーマ（カラースタイル）の選択
+
+Design Gallery API からテーマ一覧を取得し、ユーザーに提示する：
+
+**テーマ一覧の取得:**
 ```
 WebFetch: GET https://design-gallery-six.vercel.app/api/styles
 → JSON: { styles: [{ id, slug, name, description, screenshotUrl }] }
 ```
 
-**フォールバック（API不通時）のスタイル一覧：**
+**フォールバック（API不通時）のテーマ一覧：**
 1. Clean Minimal — 細ボーダー、広い余白、影なし。洗練されたモノトーン
 2. Soft Neutral — 丸み大、柔らかい影、暖色ニュートラル。温かみのあるUI
 3. Bold Vivid — 鮮やかカラー、グラデーションカード、インディゴサイドバー
@@ -42,55 +136,13 @@ WebFetch: GET https://design-gallery-six.vercel.app/api/styles
 11. Mono Editorial — モノクロ高コントラスト、角丸なし、タイポグラフィ重視
 12. Retro Brutalist — 太ボーダー、オフセットシャドウ、カラフル。個性的で力強い
 
-**ギャラリーの見せ方:**
-- API からスタイル一覧を取得し、各スタイルの名前と説明を日本語で提示
-- 「実際のプレビューを見たい場合は https://design-gallery-six.vercel.app で確認できます」とオプション提示
+**ユーザーがテーマを選択 → ステップ 3 に進む。**
 
-**ユーザーがギャラリーから番号を選んだ場合 → ステップ 1-layout に進む。**
-**ユーザーが自分でゼロから選びたい場合 → ステップ 1-full に進む。**
+### ステップ 3: デザインシステムの適用
 
-### ステップ 1-layout: ギャラリー選択後のレイアウト確認
+#### 3a: ギャラリーのテーマを適用する場合
 
-ギャラリーはスタイル（色・影・角丸等）のバリエーションであり、レイアウトは全てサイドバー型で固定されている。
-ユーザーのアプリに適したレイアウトを確認するため、`AskUserQuestion` で**1つだけ**質問する：
-
-- **レイアウト** (header: "レイアウト")
-  - アプリに適したレイアウトパターンを選択肢として提示
-  - ギャラリーで見た「サイドバー型」を第一候補にしつつ、他の選択肢も提示
-  - 例: 「サイドバー型（ギャラリーと同じ）」「ヘッダー型」「ミニマル（ナビなし）」
-
-→ ステップ 2a-gallery に進む。
-
-### ステップ 1-full: デザインの方向性を一括で聞く
-
-**`AskUserQuestion` で最大3つの質問を1回のコールでまとめて聞く。** 1問ずつ聞かない。
-
-質問は以下の3つ。選択肢はアプリの種類・ターゲットに合わせて動的に生成する：
-
-1. **レイアウト** (header: "レイアウト")
-   - アプリに適したレイアウトパターンを選択肢として提示
-   - 各選択肢に、そのレイアウトを採用している有名アプリの名前を添えてイメージしやすくする
-   - 例: 「サイドバー型 — Notionのように左側にメニュー、右側にコンテンツ」
-
-2. **カラー** (header: "カラー")
-   - アプリの目的に合ったカラー候補を提示
-   - 各色がどんな印象を与えるかを description で説明する
-
-3. **雰囲気** (header: "雰囲気")
-   - アプリのターゲットに合った雰囲気の候補を提示
-   - 各雰囲気がどんなUIになるかを description で説明する
-
-**ユーザーが「〇〇みたいなデザイン」と具体的なアプリを指定してきた場合：**
-1. Claude がそのアプリのUIを知っていれば → そのまま特徴を説明し、取り入れる要素を確認
-2. Claude が十分に把握していなければ → Chrome MCP でLPを閲覧するか、Google画像検索で「アプリ名 app screenshot」を検索してUIを確認
-
-→ ステップ 2b-manual に進む。
-
-### ステップ 2: デザインシステムの更新
-
-#### ステップ 2a-gallery: ギャラリースタイルを適用する場合
-
-Design Gallery API から選択されたスタイルの詳細トークンを取得する：
+Design Gallery API から選択されたテーマの詳細トークンを取得する：
 
 ```
 WebFetch: GET https://design-gallery-six.vercel.app/api/styles/{slug}
@@ -102,60 +154,36 @@ WebFetch: GET https://design-gallery-six.vercel.app/api/styles/{slug}
 **1. `src/app/globals.css` のCSS変数を更新：**
 
 取得した `cssVariables` オブジェクトの全キー・バリューを `:root` セクションに上書き適用する。
-既存の `:root` ブロック内の変数を新しいトークン値に置換する。
 
-例（API レスポンスの cssVariables がこうだった場合）:
-```json
-{ "--primary": "oklch(0.554 0.135 66)", "--radius": "0.75rem", ... }
-```
-→ globals.css の `:root` 内の該当変数を更新する。
+**2. `.claude/rules/design-system.md` に Active Style + Active Layout セクションを追記：**
 
-**2. `.claude/rules/design-system.md` に Active Style セクションを追記：**
-
-取得した `designRules` 配列の各項目を Active Style セクションとして書き込む：
 ```markdown
 ## Active Style: {name} (#{id})
 
 {designRules の各項目をリストとして記述}
 
-- **Layout**: [ステップ 1-layout で選ばれたレイアウト]
+## Active Layout: {layout.nameJa} ({layout.slug})
+- **パターン**: {layout.structureHint}
+- **参考アプリ**: {layout.referenceApps}
+- **構成要素**: {layout.features}
 ```
 
 **3. `PROJECT.md` にデザイン方針を追記：**
 ```markdown
 ## デザイン方針
-- ベーススタイル: {name} (#{id})
-- レイアウト: [ステップ 1-layout で選ばれたレイアウト]
+- レイアウト: {layout.nameJa} (#{layout.id})
+- ベーススタイル: {style.name} (#{style.id})
 - トークンソース: https://design-gallery-six.vercel.app/api/styles/{slug}
 - カスタマイズ: [ユーザーからの追加要望があれば]
 ```
 
-**フォールバック（API不通時）:** design.md 内のハードコード情報で対応：
-
-| スタイル | primary カラー | 特記事項 |
-|---------|--------------|---------|
-| 1. Clean Minimal | そのまま（indigo-blue） | `--radius` を大きめに |
-| 2. Soft Neutral | amber 系 `oklch(0.554 0.135 66)` | `--card`, `--sidebar` を暖色系に |
-| 3. Bold Vivid | vivid indigo `oklch(0.546 0.245 262)` | 鮮やかさ重視 |
-| 4. Corporate Sharp | そのまま | `--radius` を小さく（0.25rem） |
-| 5. Glass Layered | indigo-purple | `--card` を半透明にはしない（CSS変数の限界）→ 実装時に backdrop-blur を使う |
-| 6. Dark Executive | emerald `oklch(0.527 0.15 155)` | `.dark` クラスをデフォルトに |
-| 7. Neumorphic Soft | slate-teal 系 | `--background` を淡いグレーに |
-| 8. Lavender Analytics | indigo `oklch(0.488 0.18 264)` + cyan accent | `--background` を淡いラベンダーに |
-| 9. Nature Organic | emerald `oklch(0.527 0.15 155)` | `--radius` を 1rem に、グリーン系 |
-| 10. Pastel Playful | pink `oklch(0.65 0.18 350)` | パステルグラデーション、`--radius` 1rem |
-| 11. Mono Editorial | black `oklch(0.13 0 0)` | `--radius` 0、影なし、ボーダーのみ |
-| 12. Retro Brutalist | black `oklch(0.13 0 0)` | `--radius` 0、太ボーダー、オフセットシャドウ |
-
-#### ステップ 2b-manual: 手動で選んだ場合
+#### 3b: 手動で選んだ場合
 
 ユーザーのフィードバックをもとに、以下のファイルを更新する：
 
 **`src/app/globals.css` のCSS変数を更新：**
 - `--primary` と `--primary-foreground`: ユーザーが選んだメインカラー
 - `--ring` と `--sidebar-primary`: primaryに合わせて更新
-- `--sidebar-ring`: primaryに合わせて更新
-- ダークモード側の `--primary` も合わせて調整
 - カラー値はすべて oklch() 形式を維持する
 
 oklch 参考値（よく使うカラー）：
@@ -185,35 +213,14 @@ oklch(0.37 0.013 285)   /* dark zinc */
 oklch(0.21 0.006 286)   /* near black */
 ```
 
-**`.claude/rules/design-system.md` に Active Style セクションを追記：**
+**`.claude/rules/design-system.md` に Active Style + Active Layout セクションを追記**
 
-手動選択でも Active Style セクションを書く。`/design-check` がこのセクションを参照してチェック基準を決めるため。
+**`PROJECT.md` にデザイン方針を追記**
 
-```markdown
-## Active Style: Custom
-
-- **Shadows**: [ユーザーの雰囲気選択に基づく — 例: shadow-sm まで]
-- **Border Radius**: [例: rounded-lg]
-- **Hover Effects**: [例: hover:bg-accent]
-- **Colors**: [ユーザーのカラー選択 — 例: primary はエメラルド]
-- **Typography**: [例: font-semibold for headings]
-- **Layout**: [ユーザーのレイアウト選択]
-```
-
-**`PROJECT.md` にデザイン方針を追記：**
-```markdown
-## デザイン方針
-- レイアウト: [選択されたレイアウト]
-- メインカラー: [カラー名と用途]
-- 雰囲気: [選択された雰囲気]
-- 参考アプリ: [ユーザーが言及したアプリ]
-- その他: [ユーザーからの具体的な要望]
-```
-
-### ステップ 3: 完了
+### ステップ 4: 完了
 
 デザインが決定したら：
-「デザインの方向性が決まりました！この設定で開発を進めていきます 🎨」
+「デザインの方向性が決まりました！この設定で開発を進めていきます。」
 
 `/start` から呼ばれた場合は、次のステップ（機能の実装）に自動的に進む。
 
